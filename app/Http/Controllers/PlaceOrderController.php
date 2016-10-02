@@ -1,0 +1,134 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+use App\Http\Requests;
+use App\PlaceOrder;
+use App\OrderLine;
+use App\Order;
+use App\Keeper\Repositories\PlaceOrderRepositoryInterface;
+use App\Mail\Reminder;
+use DB;
+use Mail;
+
+class PlaceOrderController extends Controller
+{	
+	protected $placeOrder;
+	
+    public function __construct(PlaceOrderRepositoryInterface $placeOrder)
+    {
+        //parent::__construct();
+        $this->placeOrder = $placeOrder;
+
+    }
+	
+	/**
+     * Show the form for creating a new resource.
+     * GET /place order/create
+     *
+     * @return Response
+    */  
+    public function create()
+    {
+		$orders = array();
+        foreach (Order::all() as $order) {
+            $orders[$order->id] = $order->id;
+        }
+		
+		$stockLineIds = array();
+        foreach (OrderLine::all() as $stockLineId) {
+            $stockLineIds[$stockLineId->line_id] = $stockLineId->line_id;
+        }
+
+		$orderLineSkus = array();
+		foreach (OrderLine::all() as $orderLineSku) {
+            $orderLineSkus[$orderLineSku->sku] = $orderLineSku->sku;
+        }
+		
+        return view('placeorder.place_order-create')
+					->with('stockLineIds', $stockLineIds)
+				    ->with('orderLineSkus', $orderLineSkus)
+					->with('orders', $orders);
+    }
+	
+	
+    /**
+     * Store a newly created resource in storage.
+     * POST /place order
+     *
+     * @return Response
+     */
+    public function store(Request $request)
+    {
+		
+		$lineId = $request->input('line_id');
+		$qty = $request->input('qty');
+		$order = $request->input('order');
+		
+		$orderLineNames = DB::table('stocks')->where('qty', DB::raw("(select max(`qty`) from stocks)"))->get();
+		
+		$getOrderLineName = array();
+		foreach($orderLineNames as $orderLineName){
+			$getOrderLineName[] = $orderLineName->line_id; 
+		}
+		$getOrderLineNameStr = implode('',$getOrderLineName);
+		
+		$orderEmails = DB::table('orders')->select('email')->where('id', $order)->get();
+		$getOrderEmail = array();
+		foreach($orderEmails as $orderEmail){
+			$getOrderEmail[] = $orderEmail->email; 
+		}
+		$getOrderEmailStr = implode('',$getOrderEmail);
+
+			
+		if ($lineId == $getOrderLineNameStr){	
+			DB::table('stocks')->where('line_id', '=', $lineId)->decrement('qty',$qty);
+			$form = $this->placeOrder->getForm();
+        if (!$form->isValid()) {
+            return redirect()->back()->withErrors($form->getErrors())->withInput();
+        }
+			$message = "hello you";
+			$this->placeOrder->create($form->getInputData());
+			Mail::to($getOrderEmailStr)->queue(new Reminder($lineId));
+			
+        return redirect('auth/dash')->with('success',"Order successfully created");
+		}else{
+		    return redirect()->back()->with('message','Please select another line id');
+		}
+    }
+	
+	/**
+     * Show the form for editing the specified resource.
+     * GET /placeorder/{id}/edit
+     *
+     * @param  int $id
+     * @return Response
+    */
+    public function edit($id)
+    {
+        $orderLine = $this->orderLine->findById($id);
+        return view('orderline/orderline-edit')->with('orderLine', $orderLine);
+    }
+	
+	/**
+     * Update the specified resource in storage.
+     * PUT /place order/{id}
+     *
+     * @param  int $id
+     * @return Response
+     */
+    public function update($id)
+    {
+        $form = $this->orderLine->getForm();
+        if (!$form->isValid()) {
+            return redirect()->back()->withErrors($form->getErrors())->withInput();
+        }
+        $this->orderLine->update($id, $form->getInputData());
+        return redirect('orderline/index')->with('success',['Order successfully created']);
+    }
+  
+}
+
+

@@ -1,0 +1,119 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| This file is where you may define all of the routes that are handled
+| by your application. Just tell Laravel the URIs it should respond
+| to using a Closure or controller method. Build something great!
+|
+*/
+
+Route::get('/', 'HomeController@index');
+
+Route::get('/auth/register', [
+    'uses' => 'AuthController@getRegister',
+    'as'   => 'auth.register',
+    'middleware' => ['guest']
+]);
+ 
+Route::post('/auth/register', [
+    'uses' => 'AuthController@postRegister',
+    'middleware' => ['guest']
+]);
+ 
+Route::get('/auth/login', [
+    'uses' => 'AuthController@getLogin',
+    'as'   => 'auth.login',
+    'middleware' => ['guest']
+]);
+ 
+Route::post('/auth/login', [
+    'uses' => 'AuthController@postLogIn',
+    'middleware' => ['guest']
+]);
+
+Route::group(['middleware' => 'web'], function () {
+	Route::get('auth/dash', 'AuthenticateController@getDash');
+	Route::get('logout', [ 'as' => 'logout', 'uses' =>'AuthController@logout']);
+
+	/*********************the accounts routes************************************/
+	Route::get('order/index', ['as' => 'order_index', 'uses' => 'OrderController@index']);
+	Route::get('account/balance', ['as' => 'account_balance', 'uses' => 'AccountController@balance']);
+	Route::get('order/create', ['as' => 'order_create', 'uses' => 'OrderController@create']);
+	Route::get('order/edit/{id}', ['as' => 'order_edit', 'uses' => 'OrderController@edit']);
+	Route::post('order/update/{id}', ['as' => 'order_update', 'uses' => 'OrderController@update']);
+	Route::post('order/store', ['as' => 'order_store', 'uses' => 'OrderController@store']);
+	Route::get('order/destroy/{id}', ['as' => 'order_destroy', 'uses' => 'OrderController@destroy']);
+	/*********************the end accounts routes************************************/
+
+	/*********************the transactions routes************************************/
+	Route::get('transaction/index', ['as' => 'transaction_index', 'uses' => 'TransactionController@index']);
+	Route::post('placeorder/store', ['as' => 'placeorder_store', 'uses' => 'PlaceOrderController@store']);
+	Route::get('placeorder/create', ['as' => 'placeorder_create', 'uses' => 'PlaceOrderController@create']);
+    Route::get('expense/index', ['as' => 'expense_index', 'uses' => 'ExpenseController@createExpenses']);
+    Route::post('expense/store', ['as' => 'store_expense', 'uses' => 'ExpenseController@storeExpense']);
+	//Route::post('account/store', ['as' => 'account_store', 'uses' => 'TransactionController@store']);
+	//Route::get('account/destroy', ['as' => 'account_destroy', 'uses' => 'AccountController@destroy']);
+	/*********************the end transactions routes************************************/
+
+		/*********************the catergories routes************************************/
+  	Route::get('expense', array('as' => 'expense_category', 'uses' => 'CategoryController@expense'));
+    Route::get('income', array('as' => 'income_category', 'uses' => 'CategoryController@income'));
+    Route::post('post/category', array('as' => 'post_category', 'uses' => 'CategoryController@postCategory'));
+    Route::get('edit/category/{id}', array('as' => 'edit_category', 'uses' => 'CategoryController@editCategory'))->where('id', '[1-9][0-1]*');
+    Route::post('update/category/{id}', array('as' => 'update_category', 'uses' => 'CategoryController@updateCategory'))->where('id', '[1-9][0-1]*');
+    Route::get('deleteCategory/{id}', array('as' => 'delete_category', 'uses' => 'CategoryController@deleteCategory'))->where('id', '[1-9][0-1]*');
+	/*********************the end categories routes************************************/
+
+	/****************************the payee routes************************************/
+	Route::get('payee/index', ['as' => 'payee_index', 'uses' => 'PayeeController@index']);
+	Route::get('payee/edit/{id}', ['as' => 'payee_edit', 'uses' => 'PayeeController@edit']);
+	Route::post('payee/store', ['as' => 'payee_store', 'uses' => 'PayeeController@store']);
+	Route::post('payee/update/{id}', ['as' => 'payee_update', 'uses' => 'PayeeController@update']);
+	Route::get('payee/destroy/{id}', ['as' => 'payee_destroy', 'uses' => 'PayeeController@destroy']);
+	/****************************the end payee routes************************************/
+
+	/***************************the payer routes************************************/
+	Route::get('payer/index', ['as' => 'payer_index', 'uses' => 'PayerController@index']);
+	Route::get('payer/edit/{id}', ['as' => 'payer_edit', 'uses' => 'PayerController@edit']);
+	Route::post('payer/store', ['as' => 'payer_store', 'uses' => 'PayerController@store']);
+	Route::post('payer/update/{id}', ['as' => 'payer_update', 'uses' => 'PayerController@update']);
+	Route::get('payer/destroy/{id}', ['as' => 'payer_destroy', 'uses' => 'PayerController@destroy']);
+	/***************************the end payer routes************************************/
+
+	/***************************the paymethod routes************************************/
+	Route::get('paymethod/index', ['as' => 'paymethod_index', 'uses' => 'PaymethodController@index']);
+	Route::get('paymethod/edit/{id}', ['as' => 'paymethod_edit', 'uses' => 'PaymethodController@edit']);
+	Route::post('paymethod/store', ['as' => 'paymethod_store', 'uses' => 'PaymethodController@store']);
+	Route::post('paymethod/update/{id}', ['as' => 'paymethod_update', 'uses' => 'PaymethodController@update']);
+	Route::get('paymethod/destroy/{id}', ['as' => 'paymethod_destroy', 'uses' => 'PaymethodController@destroy']);
+	/***************************the end paymethod routes************************************/
+
+	/***************************the animal routes************************************/
+	Route::get('orderline/index', ['as' => 'orderline_index', 'uses' => 'OrderlineController@index']);
+	Route::post('orderline/store', ['as' => 'orderline_store', 'uses' => 'OrderlineController@store']);
+	Route::get('orderline/create', ['as' => 'orderline_create', 'uses' => 'OrderlineController@create']);
+	Route::get('orderline/edit/{id}', ['as' => 'orderline_edit', 'uses' => 'OrderlineController@edit']);
+	Route::post('animal/postedit', ['as' => 'animalpost_edit', 'uses' => 'AnimalController@postEditBalance']);
+	Route::get('animal/balance', ['as' => 'animal_balance', 'uses' => 'AnimalController@balance']);
+  	Route::get('animal/type', 	['as' => 'animal_type', 'uses' => 'AnimalTypeController@types']);
+  	Route::get('animaltype/edit/{id}', ['as' => 'animaltype_edit', 'uses' => 'AnimalTypeController@editAnimalType']);
+    Route::post('orderline/update/{id}', ['as' => 'orderline_update', 'uses' => 'OrderlineController@update']);
+    Route::post('post/animaltype', ['as' => 'post_animaltype', 'uses' => 'AnimalTypeController@postAnimalType']);
+	Route::get('destroy/animaltype/{id}', ['as' => 'destroy_animaltype', 'uses' => 'AnimalTypeController@deleteAnimalType']);
+   	/***************************the animal routes************************************/
+
+   	/***************************the animal food routes************************************/
+	Route::get('animalfood/index', ['as' => 'animalfood_index', 'uses' => 'AnimalFoodController@index']);
+	Route::post('animalfood/store', ['as' => 'animalfood_store', 'uses' => 'AnimalFoodController@store']);
+	Route::get('animalfood/create', ['as' => 'animalfood_create', 'uses' => 'AnimalFoodController@create']);
+  	Route::get('animalfood/type', 	['as' => 'animalfood_type', 'uses' => 'AnimalFoodTypeController@types']);
+  	Route::get('animalFoodtype/edit/{id}', ['as' => 'animalfoodtype_edit', 'uses' => 'AnimalFoodTypeController@editAnimalFoodType']);
+    Route::post('animalfoodtype/update/{id}', ['as' => 'animalfoodtype_update', 'uses' => 'AnimalFoodTypeController@updateAnimalFoodType']);
+    Route::post('post/animalfoodtype', ['as' => 'post_animalfoodtype', 'uses' => 'AnimalFoodTypeController@postAnimalFoodType']);
+	Route::get('destroy/animalfoodtype/{id}', ['as' => 'destroy_animalfoodtype', 'uses' => 'AnimalFoodTypeController@deleteAnimalFoodType']);
+   	/***************************the animal food routes************************************/
+});

@@ -1,0 +1,102 @@
+@extends('layouts.master')
+@section('content')
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-default">
+               <div class="panel-heading"><h3>Register to V_Tracker</h3></div>
+                <div class="panel-body">
+                  <form class="form-vertical" id="val-form" role="form" method="post" action="{{ route('auth.register') }}">
+                    <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                        <!--<label for="username" class="control-label">Choose a username</label>-->
+                        <input type="text" name="name" class="form-control check_val" id="name" value="{{ old('name') ?: '' }}" placeholder="name">
+                        @if ($errors->has('name'))
+                            <span class="help-block">{{ $errors->first('name') }}</span>
+                        @endif
+                    </div>
+					<div class="form-group{{ $errors->has('surname') ? ' has-error' : '' }}">
+                        <!--<label for="username" class="control-label">Choose a username</label>-->
+                        <input type="text" name="surname" class="form-control check_val" id="surname" value="{{ old('surname') ?: '' }}" placeholder="surname">
+                        @if ($errors->has('surname'))
+                            <span class="help-block">{{ $errors->first('surname') }}</span>
+                        @endif
+                    </div>
+                    <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                        <!--<label for="password" class="control-label">Choose a password</label>-->
+                        <input type="password" name="password" class="form-control check_val" id="password" placeholder="password">
+                        @if ($errors->has('password'))
+                            <span class="help-block">{{ $errors->first('password') }}</span>
+                        @endif
+                    </div>
+                    <div class="form-group{{ $errors->has('confirm_password') ? ' has-error' : '' }}">
+                        <!--<label for="password" class="control-label">Choose a password</label>-->
+                        <input type="password" name="confirm_password" class="form-control check_val" id="confirm_password" placeholder="confirm password">
+                        @if ($errors->has('confirm_password'))
+                            <span class="help-block">{{ $errors->first('confirm_password') }}</span>
+                        @endif
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" id="submit" class="btn btn-primary">Sign up</button>
+                    </div>
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                 </form>
+                </div>
+            </div>
+        </div>
+		<div class="modal fade" id="your-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">V_Tracker</h4>
+					</div>
+					<div class="modal-body">
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script type="text/javascript" src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+		<script>
+		$(document).ready(function(){
+			$('#val-form').submit(function( event ) {
+			  console.log("entered custom handler");
+				event.preventDefault();
+				//get values from form
+				var infoModal = $('#your-modal');
+				var submit = $('#submit'); 
+				var f_name = $('#name').val();
+				var l_name = $('#surname').val();
+				var u_password = $('#password').val();
+				var confirm_password = $('#confirm_password').val();
+				$.ajaxSetup({
+				  headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				  }
+				});
+				/*$(".check_val").each(function(){
+					if($(this).val() == ''){
+					infoModal.find('.modal-body').html("Pleas fill in all your details");
+					infoModal.modal('show');
+					return false;
+					}else{
+					
+					
+					}
+				});*/
+				$.post('register',{name:f_name, surname:l_name, password:u_password, _token: '{{csrf_token() }}'}, function(data){
+					console.log(data);
+					//window.location = 'login/';
+					infoModal.find('.modal-body').html("Your account has been created and you can now sign in");
+					infoModal.modal('show');
+				});
+
+			});
+		});
+		</script>
+    </div>
+@stop
+

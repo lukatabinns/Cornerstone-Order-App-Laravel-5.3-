@@ -1,0 +1,99 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+use App\Http\Requests;
+use App\Orderline;
+use App\Keeper\Repositories\OrderLineRepositoryInterface;
+use DB;
+
+class OrderlineController extends Controller
+{	
+	protected $orderLine;
+	
+    public function __construct(OrderLineRepositoryInterface $orderLine)
+    {
+        //parent::__construct();
+        $this->orderLine = $orderLine;
+
+    }
+
+
+    //
+	    /**
+     * Display a listing of the resource.
+     * GET /orderline
+     *
+     * @return Response
+     */
+    public function index()
+    {
+        $orderLine = OrderLine::orderBy('id', 'DESC')->paginate(5);
+        return view('orderline.orderline-index')->with('orderLine', $orderLine);
+    }
+	
+	/**
+     * Show the form for creating a new resource.
+     * GET /orderline/create
+     *
+     * @return Response
+    */  
+    public function create()
+    {
+  
+        $previousTypes = Orderline::paginate(10);
+
+        return view('orderline.orderline-create');
+              
+    }
+	
+	
+    /**
+     * Store a newly created resource in storage.
+     * POST /orderline
+     *
+     * @return Response
+     */
+    public function store()
+    {
+        $form = $this->orderLine->getForm();
+        if (!$form->isValid()) {
+            return redirect('orderline/create')->withErrors($form->getErrors())->withInput();
+        }
+        $this->orderLine->create($form->getInputData());
+        return redirect('orderline/index')->with('success',"Order successfully created");
+    }
+	
+	/**
+     * Show the form for editing the specified resource.
+     * GET /orderline/{id}/edit
+     *
+     * @param  int $id
+     * @return Response
+    */
+    public function edit($id)
+    {
+        $orderLine = $this->orderLine->findById($id);
+        return view('orderline/orderline-edit')->with('orderLine', $orderLine);
+    }
+	
+	/**
+     * Update the specified resource in storage.
+     * PUT /orderline/{id}
+     *
+     * @param  int $id
+     * @return Response
+     */
+    public function update($id)
+    {
+        $form = $this->orderLine->getForm();
+        if (!$form->isValid()) {
+            return redirect()->back()->withErrors($form->getErrors())->withInput();
+        }
+        $this->orderLine->update($id, $form->getInputData());
+        return redirect('orderline/index')->with('success',['Order successfully created']);
+    }
+  
+}

@@ -1,0 +1,46 @@
+@include('partials.master-header')
+
+<div class="container">
+   <div class="col-md-6">
+   	@if ( session()->has('message') )
+		<div class="alert alert-success alert-dismissable">{{ session()->get('message') }}</div>
+	@endif
+	<h3>Place Order</h3>
+     
+        {{ Form::open(array('route'=>'placeorder_store')) }}
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <a href="#" class="close" data-dismiss="alert">&times;</a>
+                <li class="error">{{ implode('',$errors->all(':message')) }}</li>
+            </div>
+
+        @endif
+		
+		<div class="control-group">
+				{{ Form::label('orders by #','') }}
+				{{Form::select('order',array('default' => 'Please Select') + $orders, 'default')}}
+		</div>
+		</br>
+		
+		<div class="control-group">
+				{{ Form::label('line ids','') }}
+				{{Form::select('line_id',array('default' => 'Please Select') + $stockLineIds, 'default')}}
+		</div>
+		</br>
+		
+		<div class="control-group">
+				{{ Form::label('skus','') }}
+				{{Form::select('sku',array('default' => 'Please Select') + $orderLineSkus, 'default')}}
+		</div>
+		</br>
+      
+        <div class="form-group">
+            {{ Form::label('qty','') }}
+            {{Form::text('qty','',array('class'=>'form-control','placeholder'=>'qty', 'required'=>'required'))}}
+        </div>
+
+        {{ Form::submit('place order',array('class'=>'btn btn-success')) }}
+        {{ Form::close() }}
+    </div>
+</div>
+@include('partials.master-footer')
